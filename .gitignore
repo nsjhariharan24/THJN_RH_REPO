@@ -1,0 +1,16 @@
+# VS Code settings and cache
+.vscode/
+*/.vscode/
+*.db
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Logs
+log/
+*/log/
+
+# ROS 2 build/install (if workspace)
+build/
+install/
