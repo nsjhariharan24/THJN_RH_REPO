@@ -26,6 +26,7 @@ setup(
         'console_scripts': [
             'task3a_rh_detect=task3a.task3a_rh_detect:main',
             'task3a_rh_thilak=task3a.task3a_rh_thilak:main',
+            'task3a_rh_jn=task3a.task3a_rh_jn:main',
         ],
     },
 )
