@@ -28,6 +28,8 @@ setup(
             'task3a_rh_thilak=task3a.task3a_rh_thilak:main',
             'task3a_rh_jn=task3a.task3a_rh_jn:main',
             'hard2=task3a.hard2:main',
+            'detection=task3a.detection:main',
+            'hard3=task3a.hard3:main',
         ],
     },
 )
