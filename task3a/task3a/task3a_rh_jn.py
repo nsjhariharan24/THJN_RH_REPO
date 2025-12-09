@@ -1,1 +1,0 @@
-print("jeevan niranjan code")

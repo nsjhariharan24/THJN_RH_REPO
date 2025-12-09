@@ -24,12 +24,9 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'task3a_rh_detect=task3a.task3a_rh_detect:main',
-            'task3a_rh_thilak=task3a.task3a_rh_thilak:main',
-            'task3a_rh_jn=task3a.task3a_rh_jn:main',
-            'hard2=task3a.hard2:main',
-            'detection=task3a.detection:main',
-            'hard3=task3a.hard3:main',
+            't3a_detection_gui=task3a.t3a_detection_gui:main',
+            't3a_detection_wogui=task3a.tt3a_detection_wogui:main',
+            
         ],
     },
 )
