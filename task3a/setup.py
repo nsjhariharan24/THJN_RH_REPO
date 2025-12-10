@@ -24,8 +24,9 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            't3a_detection_gui=task3a.t3a_detection_gui:main',
-            't3a_detection_wogui=task3a.tt3a_detection_wogui:main',
+            't3a_gui=task3a.t3a_detection_gui:main',
+            't3a_wogui=task3a.t3a_detection_wogui:main',
+            't3a_f=task3a.t3a_format:main',
             
         ],
     },
