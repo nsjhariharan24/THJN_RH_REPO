@@ -173,6 +173,16 @@ class SquareDetectorForceStop(Node):
         self.status_pub = self.create_publisher(String, "/detection_status", 10)
         self.cmd_pub = self.create_publisher(Twist, "/cmd_vel", 10)
 
+
+        # ===== DOCK STATION (ONE-TIME STOP) =====
+        self.dock_x = 2.0717
+        self.dock_y = -1.6939
+        self.dock_tol = 0.20          # meters
+        self.dock_stop_duration = 3.0
+        self.dock_done = False        # VERY IMPORTANT (prevents repeat)
+	
+	    
+        
         # robot pose (for global conversion)
         self.robot_x = 0.0
         self.robot_y = 0.0
@@ -191,7 +201,7 @@ class SquareDetectorForceStop(Node):
         self.triplet_centroid_maxdist = 0.45
 
         # control params
-        self.max_detect_distance = 0.5
+        self.max_detect_distance = 0.1
         self.delay_seconds = 10.0
         self.force_stop_duration = 3.0
         self.force_stop_rate = 10.0
@@ -240,6 +250,8 @@ class SquareDetectorForceStop(Node):
         siny = 2.0 * (q.w * q.z + q.x * q.y)
         cosy = 1.0 - 2.0 * (q.y*q.y + q.z*q.z)
         self.robot_yaw = math.atan2(siny, cosy)
+        
+
 
     def scan_cb(self, msg: LaserScan):
         ranges = np.array(msg.ranges, dtype=np.float32)
@@ -426,7 +438,48 @@ class SquareDetectorForceStop(Node):
                 final_squares.append({'corner': best['corner1'], 'angle': (best['angles'][0] + best['angles'][1])/2.0, 'triplet': True})
 
         now = self.get_clock().now().seconds_nanoseconds()[0]
+        # ======================================================
+        # ONE-TIME DOCK STATION STOP (POSITION ONLY)
+        # ======================================================
+        if not self.dock_done:
+            dx = self.robot_x - self.dock_x
+            dy = self.robot_y - self.dock_y
+            dist = math.hypot(dx, dy)
 
+            if dist <= self.dock_tol:
+                self.dock_done = True   # 🔒 latch (never stop here again)
+
+                gx_report = float(self.robot_x)
+                gy_report = float(self.robot_y)
+
+                # Publish stop signal
+                msg = Bool()
+                msg.data = True
+                self.shape_pub.publish(msg)
+
+                st = String()
+                st.data = f"DOCK_STATION,{gx_report:.3f},{gy_report:.3f},0"
+                self.status_pub.publish(st)
+                self.last_status = st.data
+
+                self.get_logger().warn(
+                    f"🔵 DOCK STATION reached → stopping for {self.dock_stop_duration:.1f}s"
+                )
+
+                # Force stop for exactly 3 seconds
+                interval = 1.0 / float(self.force_stop_rate)
+                self.forced_stop_end_time = now + self.dock_stop_duration
+                self.forced_stop_timer = self.create_timer(
+                    interval, self._publish_zero_cmd_cb
+                )
+
+                return   # ⛔ Skip shape detection during docking stop
+
+	
+	
+	
+	
+	
         accepted_for_timer = False
         new_detection_global = None
         new_detection_corner = None
@@ -581,6 +634,11 @@ class SimpleTriangleDetector(Node):
         # odom
         self.robot_x = 0.0; self.robot_y = 0.0; self.robot_yaw = 0.0
 
+        # ===== TRIANGLE DISABLE ZONE (Y-AXIS ONLY) =====
+        self.tri_disable_y_min = -1.8
+        self.tri_disable_y_max = -1.3
+
+
         # params
         self.cluster_gap = 0.20
         self.split_merge_dist = 0.06
@@ -615,7 +673,7 @@ class SimpleTriangleDetector(Node):
         self.flags: List[Tuple[float,float]] = []
         self.flag_dedup = 0.3
         self.flag_close_thresh = 0.48
-        self.immediate_confirm_delay = 3.2
+        self.immediate_confirm_delay = 2.0
         self.confirm_time: Optional[float] = None
         self.confirm_report: Optional[Tuple[float,float]] = None
 
@@ -643,6 +701,11 @@ class SimpleTriangleDetector(Node):
 
     def scan_cb(self, msg: LaserScan):
 
+        # DISABLE TRIANGLE DETECTION IN DOCK Y-ZONE
+        # ======================================================
+        if self.tri_disable_y_min <= self.robot_y <= self.tri_disable_y_max:
+            self._publish_no_shape()
+            return
         # ----------- preprocessing -----------
         ranges_all = np.array(msg.ranges, dtype=np.float32)
         angles_all = np.linspace(msg.angle_min, msg.angle_max, ranges_all.shape[0], endpoint=True)

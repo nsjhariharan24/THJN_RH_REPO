@@ -36,7 +36,7 @@ class LidarReactiveNavigator(Node):
         self.create_subscription(Odometry, '/odom', self.odom_callback, 10)
 
         # ===== PARAMETERS =====
-        self.front_thresh = 0.28
+        self.front_thresh = 0.6
         self.forward_speed = 0.5
         self.angular_speed = 0.5
         self.heading_kp = 1.5
