@@ -29,7 +29,8 @@ setup(
         'en=ebot_hardware_4b.en:main',
         'sd=ebot_hardware_4b.sd:main',
         'sh1=ebot_hardware_4b.sh1:main',
-        'en1=ebot_hardware_4b.en1:main'
+        'en1=ebot_hardware_4b.en1:main',
+        'shape1=ebot_hardware_4b.shape1:main'
         ],
     },
 )
