@@ -615,7 +615,7 @@ class SimpleTriangleDetector(Node):
         self.flags: List[Tuple[float,float]] = []
         self.flag_dedup = 0.3
         self.flag_close_thresh = 0.48
-        self.immediate_confirm_delay = 3.2
+        self.immediate_confirm_delay = 0.0
         self.confirm_time: Optional[float] = None
         self.confirm_report: Optional[Tuple[float,float]] = None
 
@@ -814,8 +814,14 @@ class SimpleTriangleDetector(Node):
 
         msg_bool = Bool(); msg_bool.data = True; self.shape_pub.publish(msg_bool)
 
-        st = String()
-        st.data = f"FERTILIZER_REQUIRED,{gx_report:.3f},{gy_report:.3f},{plant_id}"
+        if 1.0 <self.robot_x<2.8:
+         st = String()
+        st.data = f"DOCK_STATION,{gx_report:.3f},{gy_report:.3f},0"
+        self.status_pub.publish(st)
+        self.last_status = st.data
+        else:
+         st = String()
+        st.data = f"FERTILZER_REQUIRED,{gx_report:.3f},{gy_report:.3f},{planti}"
         self.status_pub.publish(st)
         self.last_status = st.data
 

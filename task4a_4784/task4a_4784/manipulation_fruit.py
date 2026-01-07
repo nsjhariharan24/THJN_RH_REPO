@@ -27,7 +27,7 @@ TEAM_ID = 4784
 BASE_LINK = "base_link"
 TCP_FRAME = "tool0"          # change if your EE frame name is different
 
-NUM_FRUITS = 2               # HARDWARE: only 2 bad fruits
+NUM_FRUITS = 3               # HARDWARE: only 2 bad fruits
 FORCE_LIMIT = 10.0           # tune based on /net_wrench scale
 
 
